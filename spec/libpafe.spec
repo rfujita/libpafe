@@ -39,11 +39,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_libdir}
 mkdir -p ${RPM_BUILD_ROOT}%{_includedir}
 mkdir -p -m755 ${RPM_BUILD_ROOT}%{_sysconfdir}/udev/rules.d
 
-mv ChangeLog ChangeLog.orig
-iconv -f euc-jp -t utf-8 ChangeLog.orig > ChangeLog
-mv README README.orig
-iconv -f euc-jp -t utf-8 README.orig > README
-
 make install DESTDIR=${RPM_BUILD_ROOT} 
 install -m755 -d -p ${RPM_BUILD_ROOT}%{_libdir}
 install -m644 debian/libpafe.udev $RPM_BUILD_ROOT%{_sysconfdir}/udev/rules.d/10-pasori.rules

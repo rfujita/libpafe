@@ -53,11 +53,11 @@
 
 2009-05-24  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
-	* src/Makefile.am (libpafe_la_LDFLAGS): "-lusb" ¤òÄÉ²Ã¡£
+	* src/Makefile.am (libpafe_la_LDFLAGS): "-lusb" ã‚’è¿½åŠ ã€‚
 
 2008-03-20  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
-	* src/libpafe.h (FELICA_SERVICE_IRUCA_HISTORY): ÄÉ²Ã
+	* src/libpafe.h (FELICA_SERVICE_IRUCA_HISTORY): è¿½åŠ 
 
 2008-02-14  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
@@ -66,11 +66,11 @@
 2008-01-29  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
 	* src/libpafe.h (FELICA_SERVICE_EDY_HISTORY)
-	(FELICA_SERVICE_EDY_NUMBER): ÄÉ²Ã
+	(FELICA_SERVICE_EDY_NUMBER): è¿½åŠ 
 
 2008-01-22  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
-	* COPYING: BSD ¥é¥¤¥»¥ó¥¹¤ËÊÑ¹¹
+	* COPYING: BSD ãƒ©ã‚¤ã‚»ãƒ³ã‚¹ã«å¤‰æ›´
 
 2008-01-17  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
@@ -81,13 +81,13 @@
 	(FELICA_CMD_READ_FROM_SECURE_FILE)
 	(FELICA_ANS_READ_FROM_SECURE_FILE)
 	(FELICA_CMD_WRITE_TO_SECURE_FILE)
-	(FELICA_ANS_WRITE_TO_SECURE_FILE): ÄÉ²Ã
+	(FELICA_ANS_WRITE_TO_SECURE_FILE): è¿½åŠ 
 
 2008-01-15  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
-	* src/felica_command.c (felica_read_single): fix typo (felica_read_sigle ¤«¤é½¤Àµ)
-	* °ìÉô¤Î´Ø¿ô¤ÇÊÖ¤êÃÍ¤¬¤ª¤«¤·¤«¤Ã¤¿¤Î¤ò½¤Àµ¡£
+	* src/felica_command.c (felica_read_single): fix typo (felica_read_sigle ã‹ã‚‰ä¿®æ­£)
+	* ä¸€éƒ¨ã®é–¢æ•°ã§è¿”ã‚Šå€¤ãŒãŠã‹ã—ã‹ã£ãŸã®ã‚’ä¿®æ­£ã€‚
 
 2008-01-14  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
-	* Version 0.0.1 ¸ø³«
+	* Version 0.0.1 å…¬é–‹

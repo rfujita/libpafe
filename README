@@ -1,30 +1,30 @@
-�� ���Υ饤�֥��� libpasori (http://libpasori.sourceforge.jp/) ��ƹ�
-   �������㴳�ε�ǽ�ɲäʤɤ�Ԥʤä���ΤǤ���
+・ このライブラリは libpasori (http://libpasori.sourceforge.jp/) を再構
+   成し、若干の機能追加などを行なったものです。
 
-�� NFC Reader/Writer Linux Driver ( http://core.dumped.cc/devel/nfc/index.ja.html )
-   �����
+・ NFC Reader/Writer Linux Driver ( http://core.dumped.cc/devel/nfc/index.ja.html )
+   および
    libnfc ( http://www.libnfc.org/ )
-   �Υ����������ɤ⻲�ͤˤ��Ƥ��ޤ���
+   のソースコードも参考にしています。
 
-�� Sony �� PaSoRi RC-S320 ����� RC-S330 ���б����Ƥ��ޤ���
+・ Sony の PaSoRi RC-S320 および RC-S330 に対応しています。
 
-�� ư���ǧ�ʤɤ��Խ�ʬ�ʾ��֤ʤΤǡ��Ƽ�����Ǥ�Ǥ����Ѥ���������
+・ 動作確認などは不十分な状態なので、各自の責任でご利用ください。
 
 
-������ѥ���ȥ��󥹥ȡ���
+●コンパイルとインストール
 
 ./configure
 make
 make install
 
 
-��udev ������
+●udev の設定
 
-Debian GNU/Linux lenny �Ǥ�������Ǥ����ǥ����ȥ�ӥ塼������С�����
-��ˤ�����꤬�ۤʤ��ǽ��������ޤ��Τ�Ŭ���ɤ��ؤ��������ԤʤäƤ�
-��������
+Debian GNU/Linux lenny での設定例です。ディストリビューションやバージョ
+ンにより設定が異なる可能性がありますので適宜読み替えて設定を行なってく
+ださい。
 
-1. ���������Ƥ� /etc/udev/pasori.rules �Ȥ�����¸���롣
+1. 下記の内容を /etc/udev/pasori.rules として保存する。
 
 ACTION!="add", GOTO="pasori_rules_end"
 SUBSYSTEM=="usb_device", GOTO="pasori_rules_start"
@@ -37,473 +37,473 @@ ATTRS{idVendor}=="054c", ATTRS{idProduct}=="02e1", MODE="0664", GROUP="plugdev"
 LABEL="pasori_rules_end"
 
 
-2. /etc/udev/rules.d/�˥���ܥ�å�����󥯤�ĥ�롣
+2. /etc/udev/rules.d/にシンボリック・リンクを張る。
 
 cd /etc/udev/rules.d
 ln -s ../pasori.rules 010_pasori.rules
 
-�ե�����̾��Ŭ���ѹ����Ƥ���������
+ファイル名は適宜変更してください。
 
-3. udevadm control --reload-rules ��¹ԡ�
-
-
-�ʾ�� plugdev ���롼�פ�°���Ƥ���桼���� pasori �����ѤǤ���褦�ˤ�
-��Ϥ��Ǥ���
+3. udevadm control --reload-rules を実行。
 
 
+以上で plugdev グループに属しているユーザは pasori を利用できるようにな
+るはずです。
 
-���ؿ���ե����
+
+
+●関数リファレンス
 
 pasori *pasori_open(void);
 
-����
-  �ǥХ����ե�����򥪡��ץ󤹤롣
+概要
+  デバイスファイルをオープンする。
 
-�֤���
-  ����������� psori ���Υݥ��󥿤��֤������Ԥ���� NULL ���֤���롣
+返り値
+  成功した場合 psori 型のポインタを返す。失敗すると NULL が返される。
 
 
 
 int pasori_init(pasori *p)
 
-����
-  PaSoRi �ν������Ԥʤ���
+概要
+  PaSoRi の初期化を行なう。
 
-����
-  p  pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p  pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 void pasori_close(pasori *p);
 
-����
-  pasori_reset() ��¹Ԥ����塢�ǥХ����ե�����򥯥��������롣
+概要
+  pasori_reset() を実行した後、デバイスファイルをクローズする。
 
-����
-  p  pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p  pasori_open で取得した psori 型のポインタ。
 
 
 
 int pasori_send(pasori *p, uint8 *data, int *size);
 
-����
-  PaSoRi �˥ǡ��������Ф��롣
+概要
+  PaSoRi にデータを送出する。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data ���Ф���ǡ����ؤΥݥ��󥿡�
-  size ���Ф���ǡ����Υ�������
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data 送出するデータへのポインタ。
+  size 送出するデータのサイズ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 int pasori_recv(pasori *p, uint8 *data, int *size);
 
-����
-  PaSoRi ����ǡ����������롣
+概要
+  PaSoRi からデータを受け取る。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data �ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size �Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
-  size �����Ȥ��Ƥ�����˳�Ǽ�����ǡ�����Ĺ������¸����롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+  size が参照している場所に格納したデータの長さが保存される。
 
 
 
 int pasori_packet_write(pasori *p, uint8 *data, int *size)
 
-����
-  PaSoRi �˥��ޥ�ɤ����Ф��롣������ pasori_send ��ƤӽФ��Ƥ��롣
+概要
+  PaSoRi にコマンドを送出する。内部で pasori_send を呼び出している。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data ���Ф���ǡ����ؤΥݥ��󥿡�
-  size ���Ф���ǡ����Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data 送出するデータへのポインタ。
+  size 送出するデータのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤���size �����Ȥ��Ƥ���������Ф����ǡ�����Ĺ��
-  ����¸����롣���Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。size が参照している場所に送出したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_packet_read(pasori * p, uint8 * data, int *size);
 
-����
-  PaSoRi �����Ф������ޥ�ɤؤα�����������롣������ pasori_recv ���
-  �ӽФ��Ƥ��롣
+概要
+  PaSoRi に送出したコマンドへの応答を取得する。内部で pasori_recv を呼
+  び出している。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data �ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size �Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤���size �����Ȥ��Ƥ�����˼��������ǡ�����Ĺ��
-  ����¸����롣���Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。size が参照している場所に取得したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
 
 
 int pasori_write(pasori *p, uint8 *data, int *size);
 
-����
-  FeliCa �˥ǡ������������롣������ pasori_packet_write ��ƤӽФ��Ƥ�
-  �롣
-  RC-S320 �Ǥ� PaSoRi2 ���ޥ�� 0x5C ���б����롣
+概要
+  FeliCa にデータを送信する。内部で pasori_packet_write を呼び出してい
+  る。
+  RC-S320 では PaSoRi2 コマンド 0x5C に対応する。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data �ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size �Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤���size �����Ȥ��Ƥ���������������ǡ�����Ĺ��
-  ����¸����롣���Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。size が参照している場所に送信したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
 
 
 int pasori_read(pasori *p, uint8 *data, int *size);
 
-����
-  FeliCa ����α�����������롣������ pasori_packet_read ��ƤӽФ��Ƥ�
-  �롣
+概要
+  FeliCa からの応答を受信する。内部で pasori_packet_read を呼び出してい
+  る。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data �ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size �Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤���size �����Ȥ��Ƥ�����˳�Ǽ�����ǡ�����Ĺ��
-  ����¸����롣���Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。size が参照している場所に格納したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
 
 
 int pasori_reset(pasori * p);
 
-����
-  RC-S320 �Ǥ� Pasori �˥ꥻ�åȥ��ޥ�ɤ����Ф��롣(PaSoRi2 ���ޥ�� 0x54)
-  RC-S330 �Ǥ� RF Off �ʤɤν�����Ԥ���
+概要
+  RC-S320 では Pasori にリセットコマンドを送出する。(PaSoRi2 コマンド 0x54)
+  RC-S330 では RF Off などの処理を行う。
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_version(pasori *p, int *v1, int *v2);
 
-����
-  Pasori �Υե����०�����С�������������롣
+概要
+  Pasori のファームウェアバージョンを取得する。
 
-����
-  p  pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  v1 �С������ξ���ֹ���Ǽ���뤿��Υݥ��󥿡�
-  v2 �С������β����ֹ���Ǽ���뤿��Υݥ��󥿡�
+引数
+  p  pasori_open で取得した psori 型のポインタ。
+  v1 バージョンの上位番号を格納するためのポインタ。
+  v2 バージョンの下位番号を格納するためのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
-�Х�
-  RC-S330 ���������ͤ������Ƥ��뤫�ɤ�����̤��ǧ��
+バグ
+  RC-S330 で正しい値が得られているかどうかは未確認。
 
 
 int pasori_test(pasori *p, int code, uint8 *data, int *size, uint8 *rdata, int *rsize);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �μ��ʿ��Ǥ�Ԥʤ���(PaSoRi2 ���ޥ�� 0x52)
+概要
+  RC-S320 のみ有効。
+  Pasori の自己診断を行なう。(PaSoRi2 コマンド 0x52)
 
-����
-  p     pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  code  �ƥ��ȥ�����
-  data  �ƥ��ȥǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size  �ƥ��ȥǡ����Хåե��Υ������ؤΥݥ��󥿡�
-  rdata �����ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  rsize �����ǡ����Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p     pasori_open で取得した psori 型のポインタ。
+  code  テストコード
+  data  テストデータを格納するバッファへのポインタ。
+  size  テストデータバッファのサイズへのポインタ。
+  rdata 応答データを格納するバッファへのポインタ。
+  rsize 応答データバッファのサイズへのポインタ。
 
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_test_echo(pasori *p, uint8 *data, int *size);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �Υ������Хå��ƥ��Ȥ�Ԥʤ���(�ƥ��ȥ����� 0x00)
+概要
+  RC-S320 のみ有効。
+  Pasori のエコーバックテストを行なう。(テストコード 0x00)
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  data �ƥ��ȥǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
-  size �ƥ��ȥǡ����Хåե��Υ������ؤΥݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data テストデータを格納するバッファへのポインタ。
+  size テストデータバッファのサイズへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_test_eprom(pasori *p);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �� EPROM �ƥ��Ȥ�Ԥʤ���(�ƥ��ȥ����� 0x01)
+概要
+  RC-S320 のみ有効。
+  Pasori の EPROM テストを行なう。(テストコード 0x01)
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_test_ram(pasori *p);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �� RAM �ƥ��Ȥ�Ԥʤ���(�ƥ��ȥ����� 0x02)
+概要
+  RC-S320 のみ有効。
+  Pasori の RAM テストを行なう。(テストコード 0x02)
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_test_cpu(pasori *p);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �� CPU �ƥ��Ȥ�Ԥʤ���(�ƥ��ȥ����� 0x03)
+概要
+  RC-S320 のみ有効。
+  Pasori の CPU テストを行なう。(テストコード 0x03)
 
-����
-  p    pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p    pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int pasori_test_polling(pasori *p);
 
-����
-  RC-S320 �Τ�ͭ����
-  Pasori �Υݡ���󥰥ƥ��Ȥ�Ԥʤ���(�ƥ��ȥ����� 0x10)
+概要
+  RC-S320 のみ有効。
+  Pasori のポーリングテストを行なう。(テストコード 0x10)
 
-����
-  p pasori_open �Ǽ������� psori ���Υݥ��󥿡�
+引数
+  p pasori_open で取得した psori 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 void pasori_set_timeout(pasori *p, int timeout);
 
-����
-  �����ॢ���Ȥ����ꤹ�롣
+概要
+  タイムアウトを設定する。
 
-����
-  p pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  timeout timeout ���� (usb_control_msg() �ǻ��Ѥ����)��
+引数
+  p pasori_open で取得した psori 型のポインタ。
+  timeout timeout の値 (usb_control_msg() で使用される)。
 
 
 
 felica *felica_polling(pasori *p, uint16 systemcode, uint8 RFU, uint8 timeslot);
 
-����
-  REQC (�ꥯ�����ȥ��ޥ�� C ��) �����������ʹߤ��̿���ɬ�פʥǡ������
-  �����롣
+概要
+  REQC (リクエストコマンド C 型) を送信し、以降の通信で必要なデータを取
+  得する。
 
-����
-  p pasori_open �Ǽ������� psori ���Υݥ��󥿡�
-  systemcode �����ƥॳ����
-              FELICA_POLLING_ANY   ���ƤΥ����ƥबȿ������
+引数
+  p pasori_open で取得した psori 型のポインタ。
+  systemcode システムコード
+              FELICA_POLLING_ANY   全てのシステムが反応する
               FELICA_POLLING_SUICA Suica
               FELICA_POLLING_EDY   Edy
-  RFU ͽ�� (�̾�� 0 �����)
-  timeslot �����ॹ���åȤκ����ͤ���ꤹ�롣�ܺ٤� JIS X 6319-4 �򻲾ȤΤ��ȡ�
+  RFU 予備 (通常は 0 を指定)
+  timeslot タイムスロットの最大値を指定する。詳細は JIS X 6319-4 を参照のこと。
 
-�֤���
-  ����������� felica ���Υݥ��󥿤��֤����֤��줿 felica ���Υݥ���
-  �����פˤʤä��Ȥ��� free(3) �ǳ�������ɬ�פ����롣 ���Ԥ���� NULL
-  ���֤���롣
+返り値
+  成功した場合 felica 型のポインタを返す。返された felica 型のポインタ
+  は不要になったときに free(3) で開放する必要がある。 失敗すると NULL
+  が返される。
 
 
 
 int felica_get_idm(felica *f, uint8 *idm);
 
-����
-  IDm (��¤���̻�) ��������롣
+概要
+  IDm (製造識別子) を取得する。
 
-����
-  f   felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  idm IDm ���Ǽ���뤿��Υݥ��󥿡�
+引数
+  f   felica_polling で取得した felica 型のポインタ。
+  idm IDm を格納するためのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int felica_get_pmm(felica *f, uint8 *pmm);
 
-����
-  PMm (��¤�ѥ�᥿) ��������롣
+概要
+  PMm (製造パラメタ) を取得する。
 
-����
-  f   felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  pmm PMm ���Ǽ���뤿��Υݥ��󥿡�
+引数
+  f   felica_polling で取得した felica 型のポインタ。
+  pmm PMm を格納するためのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int felica_read(felica * f, int *n, felica_block_info *info, uint8 *data);
 
-����
-  Read ���ޥ�ɤ��������롣
+概要
+  Read コマンドを送信する。
 
-����
-  f    felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  n    �֥��å����ؤΥݥ��󥿡�
-  info �����ӥ������ɥꥹ�ȡ�
-  data �����ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  n    ブロック数へのポインタ。
+  info サービスコードリスト。
+  data 応答データを格納するバッファへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
-�Х�
-  RC-S330 �Ǥ�ư��̤��ǧ��
+バグ
+  RC-S330 では動作未確認。
 
 
 int felica_read_single(felica * f, int servicecode, int mode, uint8 block, uint8 *data);
 
-����
-  Read ���ޥ�ɤ��������롣�֥��å����� 1 �˸��ꡣ
+概要
+  Read コマンドを送信する。ブロック数は 1 に固定。
 
-����
-  f     felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  mode  ���������⡼��
-        0  ľ�ܥ�������
-           �۴Ľ�������������
-           ������������
-        1  �����쥢������
-  block �֥��å��ֹ�
-  data  �����ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
+引数
+  f     felica_polling で取得した felica 型のポインタ。
+  mode  アクセスモード
+        0  直接アクセス
+           循環順編成アクセス
+           減算アクセス
+        1  戻入れアクセス
+  block ブロック番号
+  data  応答データを格納するバッファへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int felica_write(felica *f, int servicecode, int mode, uint8 addr, uint8 *data);
 
-̤����
+未実装
 
 
 
 int felica_request_service(felica *f, int *n, uint16 *list, uint16 *data);
 
-����
-  Request Service ���ޥ�ɤ��������롣
+概要
+  Request Service コマンドを送信する。
 
-����
-  f    felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  n    �֥��å����ؤΥݥ��󥿡�
-  list �����ӥ������ɥꥹ�Ȥޤ��ϥ��ꥢ�����ɥꥹ�ȡ�
-  data �����ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  n    ブロック数へのポインタ。
+  list サービスコードリストまたはエリアコードリスト。
+  data 応答データを格納するバッファへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
-�Х�
-  RC-S330 �Ǥ�ư��̤��ǧ��
+バグ
+  RC-S330 では動作未確認。
 
 
 int felica_request_response(felica *f, uint8 *mode);
 
-����
-  Request Response ���ޥ�ɤ��������롣���ߤΥ⡼�ɤ�Ĵ�٤롣
+概要
+  Request Response コマンドを送信する。現在のモードを調べる。
 
-����
-  f    felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  mode �⡼�ɤ��Ǽ���뤿��Υݥ��󥿡�
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  mode モードを格納するためのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
-�Х�
-  RC-S330 �Ǥ�ư��̤��ǧ��
+バグ
+  RC-S330 では動作未確認。
 
 
 int felica_search_service(felica *f);
 
-����
-  0xffff�������ӥ������ɤȤ����ֵѤ����ޤ� Search Service Code ���ޥ�
-  �ɤ��������롣
-  �������줿�����ӥ������ɤޤ��ϥ��ꥢ�����ɤο���
+概要
+  0xffffがサービスコードとして返却されるまで Search Service Code コマン
+  ドを送信する。
+  取得されたサービスコードまたはエリアコードの数は
 
   f->area_num, f->service_num
 
-  �����ꤵ��ޤ���  ���줾��Υ����ӥ������ɤޤ��ϥ��ꥢ�����ɤ�
+  に設定されます。  それぞれのサービスコードまたはエリアコードは
 
   f->area[n].code, f->area[n].attr, f->area[n].bin
   f->service[n].code, f->service[n].attr, f->service[n].bin
 
-  �ǻ��ȤǤ��ޤ���code �ϥ����ӥ��ֹ�ޤ��ϥ����ӥ��ե�����κǾ��ե���
-  �뼱�̻ҡ�attr �ϥ����������������ʬ�� bin �ϥե����뼱�̻����Τ�ɽ
-  ���ޤ���
+  で参照できます。code はサービス番号またはサービスファイルの最小ファイ
+  ル識別子、attr はアクセス制御処理区分、 bin はファイル識別子全体を表
+  します。
 
-����
-  f    felica_polling �Ǽ������� felica ���Υݥ��󥿡�
+引数
+  f    felica_polling で取得した felica 型のポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
 int felica_request_system(felica *f, int *n, uint16 *data);
 
-����
-  Request System Code ���ޥ�ɤ��������롣FeliCa �Τ�ĥ����ƥॳ���ɤ�
-  �ꥹ�Ȥ����롣
+概要
+  Request System Code コマンドを送信する。FeliCa のもつシステムコードの
+  リストを得る。
 
-����
-  f    felica_polling �Ǽ������� felica ���Υݥ��󥿡�
-  data �����ǡ������Ǽ����Хåե��ؤΥݥ��󥿡�
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  data 応答データを格納するバッファへのポインタ。
 
-�֤���
-  ����������� 0 ���֤������Ԥ���� 0 �ʳ��ο��ͤ��֤���롣
-
-
-
-���
-
-FELICA_IDM_LENGTH      IDm �Υ�����
-FELICA_PMM_LENGTH      PMm �Υ�����
-FELICA_BLOCK_LENGTH    �֥��å��Υ�����
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
 
 
 
-�����
+定数
 
-PASORI_ERR_PARM    �����˸��꤬���롣
-PASORI_ERR_MEM     ����γ��ݤ˼��Ԥ�����
-PASORI_ERR_COM     �̿����顼��
-PASORI_ERR_DATA    �ǡ����˰۾郎���롣
-PASORI_ERR_CHKSUM  �����å�����˼��Ԥ�����
-PASORI_ERR_FORMAT  ���ޥ�ɤη������۾
-PASORI_ERR_TYPE    ̤�б��Υϡ��ɥ�������
+FELICA_IDM_LENGTH      IDm のサイズ
+FELICA_PMM_LENGTH      PMm のサイズ
+FELICA_BLOCK_LENGTH    ブロックのサイズ
 
 
-��Ϣ����
+
+戻り値
+
+PASORI_ERR_PARM    引数に誤りがある。
+PASORI_ERR_MEM     メモリの確保に失敗した。
+PASORI_ERR_COM     通信エラー。
+PASORI_ERR_DATA    データに異常がある。
+PASORI_ERR_CHKSUM  チェックサムに失敗した。
+PASORI_ERR_FORMAT  コマンドの形式が異常。
+PASORI_ERR_TYPE    未対応のハードウェア。
+
+
+●連絡先
 
 ZXB01226@nifty.com
