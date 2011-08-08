@@ -1,0 +1,93 @@
+2009-10-09  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* tests/pasori_test.c (show_version, main): add code for
+	RC-S310 (http://felicabalviewer.sourceforge.jp/linux.html).
+
+	* src/libpafe.h (enum PASORI_TYPE):add
+	"PASORI_TYPE_S310" (http://felicabalviewer.sourceforge.jp/linux.html).
+
+	* src/felica_command.c (felica_pasori_read, felica_polling): add
+	code for
+	RC-S310 (http://felicabalviewer.sourceforge.jp/linux.html).
+
+	* src/pasori_command.c (PASORIUSB_PRODUCT_S310, S310_INIT):
+	add (http://felicabalviewer.sourceforge.jp/linux.html).
+	(pasori_test, pasori_write, pasori_read, pasori_init)
+	(pasori_reset, pasori_version, pasori_open, pasori_send)
+	(pasori_recv): add code for
+	RC-S310 (http://felicabalviewer.sourceforge.jp/linux.html).
+
+	* debian/libpafe.udev: add definition for
+	RC-S310 (http://felicabalviewer.sourceforge.jp/linux.html).
+
+2009-07-20  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (bcd2int): add.
+	(pasori_version): use "bcd2int()" when "p->type" is
+	"PASORI_TYPE_S330".
+
+2009-07-17  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* tests/pasori_test.c (show_version, main): check "p->type".
+
+	* src/pasori_command.c (S330_RF_ANTENNA_ON, S330_RF_ANTENNA_OFF)
+	(S330_GET_VERSION, S330_DESELECT, pasori_list_passive_target)
+	(get_end_points): add.
+	(pasori_init_test): return status.
+	(pasori_write, pasori_read, pasori_init, pasori_reset)
+	(pasori_version, pasori_open, pasori_send, pasori_recv)
+	(pasori_test): check "p->type".
+	(pasori_close): call "pasori_reset()" before close the usb device.
+
+	* src/libpafe.h (enum PASORI_TYPE): add.
+	(struct tag_pasori): add member "type".
+	(PASORI_ERR_TYPE): add.
+
+	* src/felica_command.c (_felica_pasori_read, felica_pasori_read):
+	add.
+	(felica_polling): use "pasori_list_passive_target()" when
+	"pp->type" is "PASORI_TYPE_S330".
+	(felica_search_service, felica_request_service)
+	(felica_request_response, felica_request_system): use
+	"felica_pasori_read()" instead of "pasri_read()".
+
+2009-05-24  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/Makefile.am (libpafe_la_LDFLAGS): "-lusb" を追加。
+
+2008-03-20  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/libpafe.h (FELICA_SERVICE_IRUCA_HISTORY): 追加
+
+2008-02-14  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (checksum): Fix checksum calculation.
+
+2008-01-29  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/libpafe.h (FELICA_SERVICE_EDY_HISTORY)
+	(FELICA_SERVICE_EDY_NUMBER): 追加
+
+2008-01-22  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* COPYING: BSD ライセンスに変更
+
+2008-01-17  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/libpafe.h (FELICA_SERVICE_SUICA_IN_OUT)
+	(FELICA_SERVICE_SUICA_HISTORY)
+	(FELICA_CMD_AUTHENTICATION1, FELICA_ANS_AUTHENTICATION1)
+	(FELICA_CMD_AUTHENTICATION2, FELICA_ANS_AUTHENTICATION2)
+	(FELICA_CMD_READ_FROM_SECURE_FILE)
+	(FELICA_ANS_READ_FROM_SECURE_FILE)
+	(FELICA_CMD_WRITE_TO_SECURE_FILE)
+	(FELICA_ANS_WRITE_TO_SECURE_FILE): 追加
+
+2008-01-15  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* src/felica_command.c (felica_read_single): fix typo (felica_read_sigle から修正)
+	* 一部の関数で返り値がおかしかったのを修正。
+
+2008-01-14  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* Version 0.0.1 公開

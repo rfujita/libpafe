@@ -1,0 +1,22 @@
+Source: libpafe
+Priority: extra
+Maintainer: Ito Hiroyuki <ZXB01226@nifty.com>
+Build-Depends: debhelper (>= 7), autotools-dev, libusb-dev
+Standards-Version: 3.8.1
+Section: libs
+Homepage: http://homepage3.nifty.com/slokar/pasori/libpafe.html
+
+Package: libpafe-dev
+Section: libdevel
+Architecture: any
+Depends: libpafe (= ${binary:Version}), libusb-0.1-4, libusb-dev
+Description: PaSoRi and Felica library (development files)
+ The libpafe library can be used by applications to access Ferica via PaSoRi (RC-S32, RC-S330).
+
+Package: libpafe
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libusb-0.1-4
+Description: PaSoRi and Felica library
+ The libpafe library can be used by applications to access Ferica via PaSoRi (RC-S32, RC-S330).
+

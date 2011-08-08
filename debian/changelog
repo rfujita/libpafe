@@ -1,0 +1,11 @@
+libpafe (0.0.7-1) unstable; urgency=low
+
+  * new upstream release.
+
+ -- Ito Hiroyuki <ZXB01226@nifty.com>  Sat, 31 Oct 2009 10:57:42 +0900
+
+libpafe (0.0.6-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Ito Hiroyuki <ZXB01226@nifty.com>  Sun, 19 Jul 2009 22:35:45 +0900

@@ -1,0 +1,509 @@
+・ このライブラリは libpasori (http://libpasori.sourceforge.jp/) を再構
+   成し、若干の機能追加などを行なったものです。
+
+・ NFC Reader/Writer Linux Driver ( http://core.dumped.cc/devel/nfc/index.ja.html )
+   および
+   libnfc ( http://www.libnfc.org/ )
+   のソースコードも参考にしています。
+
+・ Sony の PaSoRi RC-S320 および RC-S330 に対応しています。
+
+・ 動作確認などは不十分な状態なので、各自の責任でご利用ください。
+
+
+●コンパイルとインストール
+
+./configure
+make
+make install
+
+
+●udev の設定
+
+Debian GNU/Linux lenny での設定例です。ディストリビューションやバージョ
+ンにより設定が異なる可能性がありますので適宜読み替えて設定を行なってく
+ださい。
+
+1. 下記の内容を /etc/udev/pasori.rules として保存する。
+
+ACTION!="add", GOTO="pasori_rules_end"
+SUBSYSTEM=="usb_device", GOTO="pasori_rules_start"
+SUBSYSTEM!="usb", GOTO="pasori_rules_end"
+LABEL="pasori_rules_start"
+
+ATTRS{idVendor}=="054c", ATTRS{idProduct}=="01bb", MODE="0664", GROUP="plugdev"
+ATTRS{idVendor}=="054c", ATTRS{idProduct}=="02e1", MODE="0664", GROUP="plugdev"
+
+LABEL="pasori_rules_end"
+
+
+2. /etc/udev/rules.d/にシンボリック・リンクを張る。
+
+cd /etc/udev/rules.d
+ln -s ../pasori.rules 010_pasori.rules
+
+ファイル名は適宜変更してください。
+
+3. udevadm control --reload-rules を実行。
+
+
+以上で plugdev グループに属しているユーザは pasori を利用できるようにな
+るはずです。
+
+
+
+●関数リファレンス
+
+pasori *pasori_open(void);
+
+概要
+  デバイスファイルをオープンする。
+
+返り値
+  成功した場合 psori 型のポインタを返す。失敗すると NULL が返される。
+
+
+
+int pasori_init(pasori *p)
+
+概要
+  PaSoRi の初期化を行なう。
+
+引数
+  p  pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+void pasori_close(pasori *p);
+
+概要
+  pasori_reset() を実行した後、デバイスファイルをクローズする。
+
+引数
+  p  pasori_open で取得した psori 型のポインタ。
+
+
+
+int pasori_send(pasori *p, uint8 *data, int *size);
+
+概要
+  PaSoRi にデータを送出する。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data 送出するデータへのポインタ。
+  size 送出するデータのサイズ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+int pasori_recv(pasori *p, uint8 *data, int *size);
+
+概要
+  PaSoRi からデータを受け取る。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+  size が参照している場所に格納したデータの長さが保存される。
+
+
+
+int pasori_packet_write(pasori *p, uint8 *data, int *size)
+
+概要
+  PaSoRi にコマンドを送出する。内部で pasori_send を呼び出している。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data 送出するデータへのポインタ。
+  size 送出するデータのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。size が参照している場所に送出したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_packet_read(pasori * p, uint8 * data, int *size);
+
+概要
+  PaSoRi に送出したコマンドへの応答を取得する。内部で pasori_recv を呼
+  び出している。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。size が参照している場所に取得したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
+
+
+int pasori_write(pasori *p, uint8 *data, int *size);
+
+概要
+  FeliCa にデータを送信する。内部で pasori_packet_write を呼び出してい
+  る。
+  RC-S320 では PaSoRi2 コマンド 0x5C に対応する。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。size が参照している場所に送信したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
+
+
+int pasori_read(pasori *p, uint8 *data, int *size);
+
+概要
+  FeliCa からの応答を受信する。内部で pasori_packet_read を呼び出してい
+  る。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data データを格納するバッファへのポインタ。
+  size バッファのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。size が参照している場所に格納したデータの長さ
+  が保存される。失敗すると 0 以外の数値が返される。
+
+
+int pasori_reset(pasori * p);
+
+概要
+  RC-S320 では Pasori にリセットコマンドを送出する。(PaSoRi2 コマンド 0x54)
+  RC-S330 では RF Off などの処理を行う。
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_version(pasori *p, int *v1, int *v2);
+
+概要
+  Pasori のファームウェアバージョンを取得する。
+
+引数
+  p  pasori_open で取得した psori 型のポインタ。
+  v1 バージョンの上位番号を格納するためのポインタ。
+  v2 バージョンの下位番号を格納するためのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+バグ
+  RC-S330 で正しい値が得られているかどうかは未確認。
+
+
+int pasori_test(pasori *p, int code, uint8 *data, int *size, uint8 *rdata, int *rsize);
+
+概要
+  RC-S320 のみ有効。
+  Pasori の自己診断を行なう。(PaSoRi2 コマンド 0x52)
+
+引数
+  p     pasori_open で取得した psori 型のポインタ。
+  code  テストコード
+  data  テストデータを格納するバッファへのポインタ。
+  size  テストデータバッファのサイズへのポインタ。
+  rdata 応答データを格納するバッファへのポインタ。
+  rsize 応答データバッファのサイズへのポインタ。
+
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_test_echo(pasori *p, uint8 *data, int *size);
+
+概要
+  RC-S320 のみ有効。
+  Pasori のエコーバックテストを行なう。(テストコード 0x00)
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+  data テストデータを格納するバッファへのポインタ。
+  size テストデータバッファのサイズへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_test_eprom(pasori *p);
+
+概要
+  RC-S320 のみ有効。
+  Pasori の EPROM テストを行なう。(テストコード 0x01)
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_test_ram(pasori *p);
+
+概要
+  RC-S320 のみ有効。
+  Pasori の RAM テストを行なう。(テストコード 0x02)
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_test_cpu(pasori *p);
+
+概要
+  RC-S320 のみ有効。
+  Pasori の CPU テストを行なう。(テストコード 0x03)
+
+引数
+  p    pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int pasori_test_polling(pasori *p);
+
+概要
+  RC-S320 のみ有効。
+  Pasori のポーリングテストを行なう。(テストコード 0x10)
+
+引数
+  p pasori_open で取得した psori 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+void pasori_set_timeout(pasori *p, int timeout);
+
+概要
+  タイムアウトを設定する。
+
+引数
+  p pasori_open で取得した psori 型のポインタ。
+  timeout timeout の値 (usb_control_msg() で使用される)。
+
+
+
+felica *felica_polling(pasori *p, uint16 systemcode, uint8 RFU, uint8 timeslot);
+
+概要
+  REQC (リクエストコマンド C 型) を送信し、以降の通信で必要なデータを取
+  得する。
+
+引数
+  p pasori_open で取得した psori 型のポインタ。
+  systemcode システムコード
+              FELICA_POLLING_ANY   全てのシステムが反応する
+              FELICA_POLLING_SUICA Suica
+              FELICA_POLLING_EDY   Edy
+  RFU 予備 (通常は 0 を指定)
+  timeslot タイムスロットの最大値を指定する。詳細は JIS X 6319-4 を参照のこと。
+
+返り値
+  成功した場合 felica 型のポインタを返す。返された felica 型のポインタ
+  は不要になったときに free(3) で開放する必要がある。 失敗すると NULL
+  が返される。
+
+
+
+int felica_get_idm(felica *f, uint8 *idm);
+
+概要
+  IDm (製造識別子) を取得する。
+
+引数
+  f   felica_polling で取得した felica 型のポインタ。
+  idm IDm を格納するためのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int felica_get_pmm(felica *f, uint8 *pmm);
+
+概要
+  PMm (製造パラメタ) を取得する。
+
+引数
+  f   felica_polling で取得した felica 型のポインタ。
+  pmm PMm を格納するためのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int felica_read(felica * f, int *n, felica_block_info *info, uint8 *data);
+
+概要
+  Read コマンドを送信する。
+
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  n    ブロック数へのポインタ。
+  info サービスコードリスト。
+  data 応答データを格納するバッファへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+バグ
+  RC-S330 では動作未確認。
+
+
+int felica_read_single(felica * f, int servicecode, int mode, uint8 block, uint8 *data);
+
+概要
+  Read コマンドを送信する。ブロック数は 1 に固定。
+
+引数
+  f     felica_polling で取得した felica 型のポインタ。
+  mode  アクセスモード
+        0  直接アクセス
+           循環順編成アクセス
+           減算アクセス
+        1  戻入れアクセス
+  block ブロック番号
+  data  応答データを格納するバッファへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int felica_write(felica *f, int servicecode, int mode, uint8 addr, uint8 *data);
+
+未実装
+
+
+
+int felica_request_service(felica *f, int *n, uint16 *list, uint16 *data);
+
+概要
+  Request Service コマンドを送信する。
+
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  n    ブロック数へのポインタ。
+  list サービスコードリストまたはエリアコードリスト。
+  data 応答データを格納するバッファへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+バグ
+  RC-S330 では動作未確認。
+
+
+int felica_request_response(felica *f, uint8 *mode);
+
+概要
+  Request Response コマンドを送信する。現在のモードを調べる。
+
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  mode モードを格納するためのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+バグ
+  RC-S330 では動作未確認。
+
+
+int felica_search_service(felica *f);
+
+概要
+  0xffffがサービスコードとして返却されるまで Search Service Code コマン
+  ドを送信する。
+  取得されたサービスコードまたはエリアコードの数は
+
+  f->area_num, f->service_num
+
+  に設定されます。  それぞれのサービスコードまたはエリアコードは
+
+  f->area[n].code, f->area[n].attr, f->area[n].bin
+  f->service[n].code, f->service[n].attr, f->service[n].bin
+
+  で参照できます。code はサービス番号またはサービスファイルの最小ファイ
+  ル識別子、attr はアクセス制御処理区分、 bin はファイル識別子全体を表
+  します。
+
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+int felica_request_system(felica *f, int *n, uint16 *data);
+
+概要
+  Request System Code コマンドを送信する。FeliCa のもつシステムコードの
+  リストを得る。
+
+引数
+  f    felica_polling で取得した felica 型のポインタ。
+  data 応答データを格納するバッファへのポインタ。
+
+返り値
+  成功した場合 0 を返す。失敗すると 0 以外の数値が返される。
+
+
+
+定数
+
+FELICA_IDM_LENGTH      IDm のサイズ
+FELICA_PMM_LENGTH      PMm のサイズ
+FELICA_BLOCK_LENGTH    ブロックのサイズ
+
+
+
+戻り値
+
+PASORI_ERR_PARM    引数に誤りがある。
+PASORI_ERR_MEM     メモリの確保に失敗した。
+PASORI_ERR_COM     通信エラー。
+PASORI_ERR_DATA    データに異常がある。
+PASORI_ERR_CHKSUM  チェックサムに失敗した。
+PASORI_ERR_FORMAT  コマンドの形式が異常。
+PASORI_ERR_TYPE    未対応のハードウェア。
+
+
+●連絡先
+
+ZXB01226@nifty.com

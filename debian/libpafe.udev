@@ -1,0 +1,10 @@
+ACTION!="add", GOTO="pasori_rules_end"
+SUBSYSTEM=="usb_device", GOTO="pasori_rules_start"
+SUBSYSTEM!="usb", GOTO="pasori_rules_end"
+LABEL="pasori_rules_start"
+
+ATTRS{idVendor}=="054c", ATTRS{idProduct}=="006c", MODE="0664", GROUP="plugdev"
+ATTRS{idVendor}=="054c", ATTRS{idProduct}=="01bb", MODE="0664", GROUP="plugdev"
+ATTRS{idVendor}=="054c", ATTRS{idProduct}=="02e1", MODE="0664", GROUP="plugdev"
+
+LABEL="pasori_rules_end"
