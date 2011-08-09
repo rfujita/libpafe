@@ -487,7 +487,7 @@ int
 pasori_version(pasori *p, int *v1, int *v2)
 {
   uint8 recv[DATASIZE + 1];
-  int n, r, ofst;
+  int n, r;
 
   if (p == NULL || v1 == NULL || v2 == NULL)
     return PASORI_ERR_PARM;
@@ -497,13 +497,11 @@ pasori_version(pasori *p, int *v1, int *v2)
   case PASORI_TYPE_S320:
     recv[0] = 0x58;
     n = 1;
-    ofst = 0;
     break;
   case PASORI_TYPE_S330:
     recv[0] = 0xd4;
     recv[1] = 0x02;
     n = 2;
-    ofst = 2;
     break;
   }
 

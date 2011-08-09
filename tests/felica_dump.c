@@ -94,12 +94,7 @@ void
 dump_service(felica * f)
 {
   uint8 b[16];
-  uint16 area_count;
-  uint16 servicecode_count;
   int i, j, r;
-
-  area_count = 0;
-  servicecode_count = 0;
 
   r = felica_search_service(f);
   if (r)
