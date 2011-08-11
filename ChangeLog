@@ -1,3 +1,23 @@
+2011-08-11  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* debian/control: fix dependance.
+
+	* src/pasori_command.c: support libusb version 1.0.
+
+	* src/libpafe.h: support libusb version 1.0.
+
+	* configure.in: use pkg-config to check existance of libusb.
+
+	* tests/felica_dump.c (dump_service): remove unused variables
+	"area_count" and "servicecode_count".
+
+	* src/pasori_command.c (pasori_version): remove unused variable
+	"ofst".
+
+2011-08-11  Ryo Fujita  <rfujita at redhat.com>
+
+	* spec/libpafe.spec: added.
+
 2009-10-09  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
 	* tests/pasori_test.c (show_version, main): add code for
