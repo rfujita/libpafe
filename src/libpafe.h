@@ -14,37 +14,13 @@ typedef unsigned short int uint16;
 
 /* DEFINE pasori */
 
-
-
 enum PASORI_TYPE {
   PASORI_TYPE_S310,
   PASORI_TYPE_S320,
   PASORI_TYPE_S330,
 };
 
-#ifdef HAVE_LIBUSB_1
-#include <libusb.h>
-#else  /* HAVE_LIBUSB_1 */
-#include <usb.h>
-#endif	/* HAVE_LIBUSB_1 */
-
-struct tag_pasori
-{
-#ifdef HAVE_LIBUSB_1
-  libusb_device **devs;
-  libusb_device *dev;
-  libusb_context *ctx;
-  libusb_device_handle *dh;
-  struct libusb_device_descriptor desc;
-#else  /* HAVE_LIBUSB_1 */
-  struct usb_device *dev;
-  usb_dev_handle *dh;
-#endif	/* HAVE_LIBUSB_1 */
-  int ep_in, ep_out;
-  int timeout;
-  enum PASORI_TYPE type;
-};
-
+struct tag_pasori;
 
 typedef struct tag_pasori pasori;
 /*~DEFINE pasori */

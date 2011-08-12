@@ -49,14 +49,13 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_felica_dump_OBJECTS = felica_dump-felica_dump.$(OBJEXT)
 felica_dump_OBJECTS = $(am_felica_dump_OBJECTS)
-am__DEPENDENCIES_1 =
-felica_dump_DEPENDENCIES = $(am__DEPENDENCIES_1) ../src/libpafe.la
+felica_dump_DEPENDENCIES = ../src/libpafe.la
 felica_dump_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(felica_dump_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_pasori_test_OBJECTS = pasori_test-pasori_test.$(OBJEXT)
 pasori_test_OBJECTS = $(am_pasori_test_OBJECTS)
-pasori_test_DEPENDENCIES = $(am__DEPENDENCIES_1) ../src/libpafe.la
+pasori_test_DEPENDENCIES = ../src/libpafe.la
 pasori_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pasori_test_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -197,11 +196,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 felica_dump_SOURCES = felica_dump.c
-felica_dump_LDADD = $(LIBUSB_LIBS) ../src/libpafe.la
-felica_dump_CFLAGS = $(LIBUSB_CFLAGS) -I../src -I../
+felica_dump_LDADD = ../src/libpafe.la
+felica_dump_CFLAGS = -I../src -I../
 pasori_test_SOURCES = pasori_test.c
-pasori_test_LDADD = $(LIBUSB_LIBS) ../src/libpafe.la
-pasori_test_CFLAGS = $(LIBUSB_CFLAGS) -I../src -I../
+pasori_test_LDADD = ../src/libpafe.la
+pasori_test_CFLAGS = -I../src -I../
 all: all-am
 
 .SUFFIXES:

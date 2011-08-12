@@ -8,10 +8,33 @@
 #include <stdio.h>
 #ifdef HAVE_LIBUSB_1
 #include <libusb.h>
-#else
+#else  /* HAVE_LIBUSB_1 */
 #include <usb.h>
-#endif
+#endif	/* HAVE_LIBUSB_1 */
 #include "libpafe.h"
+
+#ifdef HAVE_LIBUSB_1
+#include <libusb.h>
+#else  /* HAVE_LIBUSB_1 */
+#include <usb.h>
+#endif	/* HAVE_LIBUSB_1 */
+
+struct tag_pasori
+{
+#ifdef HAVE_LIBUSB_1
+  libusb_device **devs;
+  libusb_device *dev;
+  libusb_context *ctx;
+  libusb_device_handle *dh;
+  struct libusb_device_descriptor desc;
+#else  /* HAVE_LIBUSB_1 */
+  struct usb_device *dev;
+  usb_dev_handle *dh;
+#endif	/* HAVE_LIBUSB_1 */
+  int ep_in, ep_out;
+  int timeout;
+  enum PASORI_TYPE type;
+};
 
 #define PASORIUSB_VENDOR 0x054c
 #define PASORIUSB_PRODUCT_S310 0x006c
@@ -19,7 +42,6 @@
 #define PASORIUSB_PRODUCT_S330 0x02e1
 
 #define TIMEOUT 1000
-
 
 /* FIXME: UNKNOWN CONSTANTS */
 static const uint8 S320_INIT0[] = { 0x62, 0x01, 0x82 };
@@ -545,6 +567,16 @@ pasori_version(pasori *p, int *v1, int *v2)
   }
 
   return 0;
+}
+
+int 
+pasori_type(pasori *p)
+{
+  if (p == NULL) {
+    return -1;
+  }
+
+  return p->type;
 }
 
 static void

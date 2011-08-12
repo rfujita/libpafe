@@ -63,7 +63,7 @@ show_version(pasori *p)
     return;
   }
 
-  switch (p->type) {
+  switch (pasori_type(p)) {
   case PASORI_TYPE_S310:
     printf("PaSoRi (RC-S310)\n firmware version %d.%02d\n", v1, v2);
     break;
@@ -83,6 +83,7 @@ int
 main(void)
 {
   pasori *p;
+  int type;
 
   p = pasori_open();
   if (!p) {
@@ -93,7 +94,8 @@ main(void)
 
   show_version(p);
 
-  if ((p->type == PASORI_TYPE_S310 || p->type == PASORI_TYPE_S320) && test(p)) {
+  type = pasori_type(p);
+  if ((type == PASORI_TYPE_S310 || type == PASORI_TYPE_S320) && test(p)) {
     pasori_close(p);
     return 1;
   }

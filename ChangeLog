@@ -1,3 +1,17 @@
+2011-08-12  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* tests/pasori_test.c (show_version, main): use "pasori_type()".
+
+	* src/pasori_command.c: add definition of "tag_pasori".
+	(pasori_type): addes.
+
+	* src/libpafe.h: "tag_pasori" is incomplete type.
+
+	* src/felica_command.c (felica_pasori_read, felica_polling): use
+	"pasori_type()".
+
+	* README: add document for "pasori_type()".
+
 2011-08-11  Hiroyuki Ito  <ZXB01226 at nifty.com>
 
 	* debian/control: fix dependance.
