@@ -1,3 +1,15 @@
+2011-08-13  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (tag_pasori): remove member "dev", add
+	member "ep_interrupt".
+	(get_end_points): use "libusb_get_device()" to get diveice.
+	(get_end_points): check transfer type.
+	(open_usb): use "libusb_open()" instead of
+	"libusb_open_device_with_vid_pid()".
+	(pasori_open): call "memset()" to initialize "pasori" struct.
+	(pasori_send, pasori_recv): use "ep_interrupt" for interrupt
+	transfer.
+
 2011-08-12  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
 	* tests/pasori_test.c (show_version, main): use "pasori_type()".

@@ -766,8 +766,7 @@ open_usb(pasori *pp)
     return PASORI_ERR_TYPE;
   }
 
-  
-  r =libusb_open(dev, &pp->dh);
+  r = libusb_open(dev, &pp->dh);
   if(r) {
     return PASORI_ERR_COM;
   }
