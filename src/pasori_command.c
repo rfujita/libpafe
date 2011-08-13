@@ -23,7 +23,6 @@ struct tag_pasori
 {
 #ifdef HAVE_LIBUSB_1
   libusb_device **devs;
-  libusb_device *dev;
   libusb_context *ctx;
   libusb_device_handle *dh;
   struct libusb_device_descriptor desc;
@@ -31,7 +30,7 @@ struct tag_pasori
   struct usb_device *dev;
   usb_dev_handle *dh;
 #endif	/* HAVE_LIBUSB_1 */
-  int ep_in, ep_out;
+  int ep_in, ep_out, ep_interrupt;
   int timeout;
   enum PASORI_TYPE type;
 };
@@ -631,9 +630,11 @@ get_end_points(pasori *pas)
   const struct libusb_interface_descriptor *interdesc;
   const struct libusb_endpoint_descriptor *epdesc;
   const struct libusb_interface *inter;
+  libusb_device *dev;
   int i, j, k;
 
-  libusb_get_config_descriptor(pas->dev, 0, &config);
+  dev = libusb_get_device(pas->dh);
+  libusb_get_config_descriptor(dev, 0, &config);
 
   for(i = 0; i < (int) config->bNumInterfaces; i++) {
     inter = &config->interface[i];
@@ -642,19 +643,31 @@ get_end_points(pasori *pas)
       for(k = 0; k < (int) interdesc->bNumEndpoints; k++) {
 	epdesc = &interdesc->endpoint[k];
 #ifdef DEBUG
-	printf("Bulk endpoint : 0x%02X\n", epdesc->bEndpointAddress);
+	printf("Endpoint : 0x%02X\n"
+	       "Transfer Type: %x\n",
+	       epdesc->bEndpointAddress,
+	       epdesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
 #endif
-	if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN) {
+	switch (epdesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) {
+	case LIBUSB_TRANSFER_TYPE_BULK:
+	  if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN) {
 #ifdef DEBUG
-	  printf("Bulk endpoint in  : 0x%02X\n", epdesc->bEndpointAddress);
+	    printf("Bulk endpoint in  : 0x%02X\n", epdesc->bEndpointAddress);
 #endif
-	  pas->ep_in = epdesc->bEndpointAddress;
-	}
-	if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT) {
+	    pas->ep_in = epdesc->bEndpointAddress;
+	  }
+	  if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT) {
 #ifdef DEBUG
-	  printf("Bulk endpoint out  : 0x%02X\n", epdesc->bEndpointAddress);
+	    printf("Bulk endpoint out  : 0x%02X\n", epdesc->bEndpointAddress);
 #endif
-	  pas->ep_out = epdesc->bEndpointAddress;
+	    pas->ep_out = epdesc->bEndpointAddress;
+	  }
+	  break;
+	case LIBUSB_TRANSFER_TYPE_INTERRUPT:
+#ifdef DEBUG
+	  printf("Interrupt endpoint  : 0x%02X\n", epdesc->bEndpointAddress);
+#endif
+	  pas->ep_interrupt = epdesc->bEndpointAddress;
 	}
       }
     }
@@ -698,10 +711,10 @@ open_usb(pasori *pp)
 #ifdef HAVE_LIBUSB_1
   int i, r, cnt;
   struct libusb_device_descriptor desc;
+  libusb_device *dev;
 
   pp->ctx = NULL;
   pp->devs = NULL;
-  pp->dev = NULL;
   r = libusb_init(&pp->ctx);
   if (r < 0) {
     return PASORI_ERR_COM;
@@ -730,7 +743,7 @@ open_usb(pasori *pp)
 #ifdef DEBUG_USB
       Log("Device is found %04x:%04x\n", desc.idVendor, desc.idProduct);	/* debug */
 #endif
-      pp->dev = pp->devs[i];
+      dev = pp->devs[i];
       goto finish;
     }
   }
@@ -754,13 +767,16 @@ open_usb(pasori *pp)
   }
 
   
-  pp->dh = libusb_open_device_with_vid_pid(pp->ctx, desc.idVendor, desc.idProduct);
-  if(pp->dh == NULL) {
+  r =libusb_open(dev, &pp->dh);
+  if(r) {
     return PASORI_ERR_COM;
   }
 
   if(libusb_kernel_driver_active(pp->dh, 0) == 1) {
-    libusb_detach_kernel_driver(pp->dh, 0);
+    r = libusb_detach_kernel_driver(pp->dh, 0);
+    if (r) {
+      return PASORI_ERR_COM;
+    }
   }
 
   pp->timeout = TIMEOUT;
@@ -847,6 +863,8 @@ pasori_open(void)
   if (pp == NULL)
     return NULL;
 
+  memset(pp, 0, sizeof(pasori));
+
   pp->dh = NULL;
   if (open_usb(pp)) {
     pasori_close(pp);
@@ -906,9 +924,9 @@ pasori_send(pasori *pp, uint8 *data, int *size)
   case PASORI_TYPE_S310:
   case PASORI_TYPE_S320:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
-    i = libusb_interrupt_transfer(pp->dh, 0x81, resp, sizeof(resp), &length, pp->timeout);
+    i = libusb_interrupt_transfer(pp->dh, pp->ep_interrupt, resp, sizeof(resp), &length, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_interrupt_read(pp->dh, 0x81, resp, sizeof(resp), pp->timeout);
+    i = usb_interrupt_read(pp->dh, pp->ep_interrupt, resp, sizeof(resp), pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   case PASORI_TYPE_S330:
@@ -968,9 +986,9 @@ pasori_recv(pasori *pp, uint8 *data, int *size)
   case PASORI_TYPE_S320:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
     length = *size;
-    i = libusb_interrupt_transfer(pp->dh, 0x81, data, length, size, pp->timeout);
+    i = libusb_interrupt_transfer(pp->dh, pp->ep_interrupt, data, length, size, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_interrupt_read(pp->dh, 0x81, data, *size, pp->timeout);
+    i = usb_interrupt_read(pp->dh, pp->ep_interrupt, data, *size, pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   case PASORI_TYPE_S330:
