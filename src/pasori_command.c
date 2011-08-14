@@ -11,6 +11,7 @@
 
 #ifdef HAVE_LIBUSB_1
 #include <libusb.h>
+#define INTERFACE_NUMBER 0
 #else  /* HAVE_LIBUSB_1 */
 #include <usb.h>
 #endif	/* HAVE_LIBUSB_1 */
@@ -26,7 +27,7 @@ struct tag_pasori
   struct usb_device *dev;
   usb_dev_handle *dh;
 #endif	/* HAVE_LIBUSB_1 */
-  int ep_in, ep_out, ep_interrupt;
+  int b_ep_in, b_ep_out, i_ep_in;
   int timeout;
   enum PASORI_TYPE type;
 };
@@ -594,7 +595,7 @@ pasori_close(pasori * pp)
 #ifdef HAVE_LIBUSB_1
   if (pp->dh) {
     pasori_reset(pp);
-    libusb_release_interface(pp->dh, 0);
+    libusb_release_interface(pp->dh, INTERFACE_NUMBER);
     libusb_close(pp->dh);
   }
 
@@ -639,8 +640,8 @@ get_end_points(pasori *pas)
       for(k = 0; k < (int) interdesc->bNumEndpoints; k++) {
 	epdesc = &interdesc->endpoint[k];
 #ifdef DEBUG
-	printf("Endpoint : 0x%02X\n"
-	       "Transfer Type: %x\n",
+	printf("Endpoint      : 0x%02X\n"
+	       "Transfer Type : %x\n",
 	       epdesc->bEndpointAddress,
 	       epdesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
 #endif
@@ -650,20 +651,22 @@ get_end_points(pasori *pas)
 #ifdef DEBUG
 	    printf("Bulk endpoint in  : 0x%02X\n", epdesc->bEndpointAddress);
 #endif
-	    pas->ep_in = epdesc->bEndpointAddress;
+	    pas->b_ep_in = epdesc->bEndpointAddress;
 	  }
 	  if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT) {
 #ifdef DEBUG
 	    printf("Bulk endpoint out  : 0x%02X\n", epdesc->bEndpointAddress);
 #endif
-	    pas->ep_out = epdesc->bEndpointAddress;
+	    pas->b_ep_out = epdesc->bEndpointAddress;
 	  }
 	  break;
 	case LIBUSB_TRANSFER_TYPE_INTERRUPT:
 #ifdef DEBUG
-	  printf("Interrupt endpoint  : 0x%02X\n", epdesc->bEndpointAddress);
+	  if ((epdesc->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN) {
+	    printf("Interrupt endpoint  : 0x%02X\n", epdesc->bEndpointAddress);
+	  }
 #endif
-	  pas->ep_interrupt = epdesc->bEndpointAddress;
+	  pas->i_ep_in = epdesc->bEndpointAddress;
 	}
       }
     }
@@ -676,26 +679,36 @@ get_end_points(pasori *pas)
 
   // 3 Endpoints maximum: Interrupt In, Bulk In, Bulk Out
   for(uiIndex = 0; uiIndex < puid->bNumEndpoints; uiIndex++) {
-    // Only accept bulk transfer endpoints (ignore interrupt endpoints)
-    if(puid->endpoint[uiIndex].bmAttributes != USB_ENDPOINT_TYPE_BULK) continue;
-
     // Copy the endpoint to a local var, makes it more readable code
     uiEndPoint = puid->endpoint[uiIndex].bEndpointAddress;
 
-    // Test if we dealing with a bulk IN endpoint
-    if((uiEndPoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_IN) {
-#ifdef DEBUG
-      printf("Bulk endpoint in  : 0x%02X\n", uiEndPoint);
-#endif
-      pas->ep_in = uiEndPoint;
-    }
+    switch (puid->endpoint[uiIndex].bmAttributes) {
+    case USB_ENDPOINT_TYPE_BULK:
 
-    // Test if we dealing with a bulk OUT endpoint
-    if((uiEndPoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_OUT) {
+      // Test if we dealing with a bulk IN endpoint
+      if((uiEndPoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_IN) {
 #ifdef DEBUG
-      printf("Bulk endpoint out  : 0x%02X\n", uiEndPoint);
+	printf("Bulk endpoint in  : 0x%02X\n", uiEndPoint);
 #endif
-      pas->ep_out = uiEndPoint;
+	pas->b_ep_in = uiEndPoint;
+      }
+
+      // Test if we dealing with a bulk OUT endpoint
+      if((uiEndPoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_OUT) {
+#ifdef DEBUG
+	printf("Bulk endpoint out  : 0x%02X\n", uiEndPoint);
+#endif
+	pas->b_ep_out = uiEndPoint;
+      }
+      break;
+    case USB_ENDPOINT_TYPE_INTERRUPT:
+      if((uiEndPoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_IN) {
+#ifdef DEBUG
+	printf("Interrupt endpoint  : 0x%02X\n", epdesc->bEndpointAddress);
+#endif
+	pas->i_ep_in = uiEndPoint;
+      }
+      break;
     }
   }
 #endif	/* HAVE_LIBUSB_1 */
@@ -777,7 +790,7 @@ open_usb(pasori *pp)
   pp->timeout = TIMEOUT;
   get_end_points(pp);
 
-  if(libusb_claim_interface(pp->dh, 0) < 0) {
+  if(libusb_claim_interface(pp->dh, INTERFACE_NUMBER) < 0) {
     return PASORI_ERR_COM;
   }
 
@@ -859,8 +872,8 @@ pasori_open(void)
     return NULL;
 
   memset(pp, 0, sizeof(pasori));
+  pp->i_ep_in = 0x81;
 
-  pp->dh = NULL;
   if (open_usb(pp)) {
     pasori_close(pp);
     return NULL;
@@ -897,9 +910,9 @@ pasori_send(pasori *pp, uint8 *data, int *size)
     break;
   case PASORI_TYPE_S330:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
-    i = libusb_bulk_transfer(pp->dh, pp->ep_out, data, *size, &length, pp->timeout);
+    i = libusb_bulk_transfer(pp->dh, pp->b_ep_out, data, *size, &length, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_bulk_write(pp->dh, pp->ep_out, data, *size, pp->timeout);
+    i = usb_bulk_write(pp->dh, pp->b_ep_out, data, *size, pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   default:
@@ -919,16 +932,16 @@ pasori_send(pasori *pp, uint8 *data, int *size)
   case PASORI_TYPE_S310:
   case PASORI_TYPE_S320:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
-    i = libusb_interrupt_transfer(pp->dh, pp->ep_interrupt, resp, sizeof(resp), &length, pp->timeout);
+    i = libusb_interrupt_transfer(pp->dh, pp->i_ep_in, resp, sizeof(resp), &length, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_interrupt_read(pp->dh, pp->ep_interrupt, resp, sizeof(resp), pp->timeout);
+    i = usb_interrupt_read(pp->dh, pp->i_ep_in, resp, sizeof(resp), pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   case PASORI_TYPE_S330:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
-    i = libusb_bulk_transfer(pp->dh, pp->ep_in, resp, sizeof(resp), &length, pp->timeout);
+    i = libusb_bulk_transfer(pp->dh, pp->b_ep_in, resp, sizeof(resp), &length, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_bulk_read(pp->dh, pp->ep_in, resp, sizeof(resp), pp->timeout);
+    i = usb_bulk_read(pp->dh, pp->b_ep_in, resp, sizeof(resp), pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   default:
@@ -981,17 +994,17 @@ pasori_recv(pasori *pp, uint8 *data, int *size)
   case PASORI_TYPE_S320:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
     length = *size;
-    i = libusb_interrupt_transfer(pp->dh, pp->ep_interrupt, data, length, size, pp->timeout);
+    i = libusb_interrupt_transfer(pp->dh, pp->i_ep_in, data, length, size, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_interrupt_read(pp->dh, pp->ep_interrupt, data, *size, pp->timeout);
+    i = usb_interrupt_read(pp->dh, pp->i_ep_in, data, *size, pp->timeout);
 #endif	/* HAVE_LIBUSB_1 */
     break;
   case PASORI_TYPE_S330:
 #ifdef HAVE_LIBUSB_1		/* HAVE_LIBUSB_1 */
     length = *size;
-    i = libusb_bulk_transfer(pp->dh, pp->ep_in, data, length, size, pp->timeout);
+    i = libusb_bulk_transfer(pp->dh, pp->b_ep_in, data, length, size, pp->timeout);
 #else  /* HAVE_LIBUSB_1 */
-    i = usb_bulk_read(pp->dh, pp->ep_in, data, *size, pp->timeout);
+    i = usb_bulk_read(pp->dh, pp->b_ep_in, data, *size, pp->timeout);
 #endif
     break;
   default:

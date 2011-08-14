@@ -1,3 +1,10 @@
+2011-08-14  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (INTERFACE_NUMBER): added.
+	(pasori_close, open_usb): use "INTERFACE_NUMBER".
+	(struct tag_pasori): change name of some members.
+	(get_end_points): check endpoint direction for interrupt transfer.
+
 2011-08-13  Hiroyuki Ito  <ZXB01226 at nifty.com>
 
 	* src/pasori_command.c (tag_pasori): remove member "dev", add
