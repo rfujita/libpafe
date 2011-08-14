@@ -6,11 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#ifdef HAVE_LIBUSB_1
-#include <libusb.h>
-#else  /* HAVE_LIBUSB_1 */
-#include <usb.h>
-#endif	/* HAVE_LIBUSB_1 */
+
 #include "libpafe.h"
 
 #ifdef HAVE_LIBUSB_1
