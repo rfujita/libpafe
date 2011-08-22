@@ -13,6 +13,7 @@ int pasori_write(pasori *p, uint8 *data, int *size);
 int pasori_read(pasori *p, uint8 *data, int *size);
 int pasori_reset(pasori * p);
 int pasori_version(pasori *p, int *v1, int *v2);
+int pasori_type(pasori *p);
 
 int pasori_test(pasori *p, int code, uint8 *data, int *size, uint8 *rdata, int *rsize);
 int pasori_test_echo(pasori *p, uint8 *data, int *size);
