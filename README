@@ -213,6 +213,24 @@ int pasori_version(pasori *p, int *v1, int *v2);
   RC-S330 で正しい値が得られているかどうかは未確認。
 
 
+
+int pasori_type(pasori *p);
+
+概要
+  Pasori のタイプを取得する。
+
+引数
+  p  pasori_open で取得した psori 型のポインタ。
+
+返り値
+  PASORI_TYPE_S310
+  PASORI_TYPE_S320
+  PASORI_TYPE_S330
+  
+  失敗すると -1 が返される。
+
+
+
 int pasori_test(pasori *p, int code, uint8 *data, int *size, uint8 *rdata, int *rsize);
 
 概要

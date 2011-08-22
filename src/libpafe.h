@@ -14,25 +14,13 @@ typedef unsigned short int uint16;
 
 /* DEFINE pasori */
 
-
-
 enum PASORI_TYPE {
   PASORI_TYPE_S310,
   PASORI_TYPE_S320,
   PASORI_TYPE_S330,
 };
 
-#include <usb.h>
-
-struct tag_pasori
-{
-  struct usb_device *dev;
-  usb_dev_handle *dh;
-  int ep_in, ep_out;
-  int timeout;
-  enum PASORI_TYPE type;
-};
-
+struct tag_pasori;
 
 typedef struct tag_pasori pasori;
 /*~DEFINE pasori */

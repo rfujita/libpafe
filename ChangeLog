@@ -1,3 +1,56 @@
+2011-08-14  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (INTERFACE_NUMBER): added.
+	(pasori_close, open_usb): use "INTERFACE_NUMBER".
+	(struct tag_pasori): change name of some members.
+	(get_end_points): check endpoint direction for interrupt transfer.
+
+2011-08-13  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* src/pasori_command.c (tag_pasori): remove member "dev", add
+	member "ep_interrupt".
+	(get_end_points): use "libusb_get_device()" to get diveice.
+	(get_end_points): check transfer type.
+	(open_usb): use "libusb_open()" instead of
+	"libusb_open_device_with_vid_pid()".
+	(pasori_open): call "memset()" to initialize "pasori" struct.
+	(pasori_send, pasori_recv): use "ep_interrupt" for interrupt
+	transfer.
+
+2011-08-12  Ito Hiroyuki  <ZXB01226 at nifty.com>
+
+	* tests/pasori_test.c (show_version, main): use "pasori_type()".
+
+	* src/pasori_command.c: add definition of "tag_pasori".
+	(pasori_type): addes.
+
+	* src/libpafe.h: "tag_pasori" is incomplete type.
+
+	* src/felica_command.c (felica_pasori_read, felica_polling): use
+	"pasori_type()".
+
+	* README: add document for "pasori_type()".
+
+2011-08-11  Hiroyuki Ito  <ZXB01226 at nifty.com>
+
+	* debian/control: fix dependance.
+
+	* src/pasori_command.c: support libusb version 1.0.
+
+	* src/libpafe.h: support libusb version 1.0.
+
+	* configure.in: use pkg-config to check existance of libusb.
+
+	* tests/felica_dump.c (dump_service): remove unused variables
+	"area_count" and "servicecode_count".
+
+	* src/pasori_command.c (pasori_version): remove unused variable
+	"ofst".
+
+2011-08-11  Ryo Fujita  <rfujita at redhat.com>
+
+	* spec/libpafe.spec: added.
+
 2009-10-09  Ito Hiroyuki  <ZXB01226 at nifty.com>
 
 	* tests/pasori_test.c (show_version, main): add code for

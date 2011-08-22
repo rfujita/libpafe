@@ -23,7 +23,7 @@ AC_PROG_MAKE_SET
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h stdlib.h stdio.h string.h sys/ioctl.h usb.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h stdio.h string.h sys/ioctl.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -40,10 +40,12 @@ AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([select])
 
 # Test for libusb
-AC_CHECK_LIB(usb, usb_init,
-   AC_DEFINE_UNQUOTED(HAVE_LIBUSB, 1, Define to 1 if your system has libusb.),
-   AC_MSG_ERROR(*** USB library is not found ***),
-   $EXTRA_LIBS)
+CHECK_LIBUSB_0="false"
+PKG_CHECK_MODULES(LIBUSB, libusb-1.0 >= 1.0.8, AC_DEFINE([HAVE_LIBUSB_1], 1, [have libusb version 1.0]), CHECK_LIBUSB_0="true")
+if [ "$CHECK_LIBUSB_0" == "true" ]
+then
+  PKG_CHECK_MODULES(LIBUSB, libusb >= 0.1.12, AC_DEFINE([HAVE_LIBUSB], 1, [have libusb version 0.1]))
+fi
 
 #AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(Makefile src/Makefile tests/Makefile debian/Makefile)

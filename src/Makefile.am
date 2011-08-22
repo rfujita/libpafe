@@ -5,5 +5,6 @@ libpafe_la_SOURCES = pasori_command.c pasori_command.h \
 
 pkginclude_HEADERS = libpafe.h pasori_command.h felica_command.h 
 
-libpafe_la_LDFLAGS = -lusb -version-info 0:7:0
+libpafe_la_LDFLAGS = $(LIBUSB_LIBS) -version-info 0:7:0
+libpafe_la_CFLAGS = $(LIBUSB_CFLAGS)
 
