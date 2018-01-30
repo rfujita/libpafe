@@ -51,6 +51,9 @@ felica_pasori_read(pasori *p, uint8 *data, int *size)
   case PASORI_TYPE_S330:
     ofst = 2;
     break;
+  case PASORI_TYPE_S380:
+    ofst = 6;
+    break;
   default:
     return PASORI_ERR_TYPE;
   }
@@ -202,7 +205,7 @@ felica_polling(pasori *pp, uint16 systemcode, uint8 RFU, uint8 timeslot)
   cmd[0] = (uint8) FELICA_CMD_POLLING;	/* command code */
   cmd[1] = H8(systemcode);
   cmd[2] = L8(systemcode);
-  cmd[3] = RFU;				/* zero */
+  cmd[3] = pasori_type(pp) == PASORI_TYPE_S380 ? 1 : RFU;				/* zero */
   cmd[4] = timeslot;
   n = 5;
 
@@ -214,6 +217,10 @@ felica_polling(pasori *pp, uint16 systemcode, uint8 RFU, uint8 timeslot)
     break;
   case PASORI_TYPE_S330:
     ofst = 3;
+    pasori_list_passive_target(pp, cmd, &n);
+    break;
+  case PASORI_TYPE_S380:
+    ofst = 6;
     pasori_list_passive_target(pp, cmd, &n);
     break;
   default:
