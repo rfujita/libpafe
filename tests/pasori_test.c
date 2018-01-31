@@ -73,6 +73,9 @@ show_version(pasori *p)
   case PASORI_TYPE_S330:
     printf("PaSoRi (RC-S330)\n firmware version %d.%02d\n", v1, v2);
     break;
+  case PASORI_TYPE_S380:
+    printf("PaSoRi (RC-S380)\n firmware version %d.%02d\n", v1, v2);
+    break;
   default:
     printf("unknown hardware.\n");
   }
