@@ -1,0 +1,28 @@
+# Working dirs
+autom4te.cache/
+src/.deps/
+src/.libs/
+tests/.libs/
+
+# Makefiles
+Makefile
+debian/Makefile
+src/Makefile
+tests/Makefile
+
+# configure files
+stamp-h1
+config.h
+config.log
+config.status
+libtool
+
+# Resulting binaries
+tests/felica_dump
+tests/pasori_test
+
+# Intermediate files
+*.la
+*.o
+*.lo
+*.Po
