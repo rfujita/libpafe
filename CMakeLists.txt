@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(pafe)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
-add_library(pafe
+add_library(pafe STATIC
     src/pasori_command.c
     src/felica_command.c
     )
+set_property(TARGET pafe PROPERTY POSITION_INDEPENDENT_CODE ON)
 find_package(libusb-1.0 REQUIRED)
 target_link_libraries(pafe usb-1.0)
 
