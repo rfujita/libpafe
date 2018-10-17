@@ -319,7 +319,7 @@ pasori_packet_read(pasori * p, uint8 * data, int *size)
   if (recv[s + 6] != 0)
     return PASORI_ERR_COM;
 
-  if (s > n)
+  if (s > (unsigned)n)
     s = n;
 
   memcpy(data, &recv[5], s);
@@ -718,7 +718,8 @@ static int
 open_usb(pasori *pp)
 {
 #ifdef HAVE_LIBUSB_1
-  int i, r, cnt;
+  int i, r;
+  ssize_t cnt;
   struct libusb_device_descriptor desc;
   libusb_device *dev;
 
