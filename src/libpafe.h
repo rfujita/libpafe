@@ -18,6 +18,7 @@ enum PASORI_TYPE {
   PASORI_TYPE_S310,
   PASORI_TYPE_S320,
   PASORI_TYPE_S330,
+  PASORI_TYPE_S380,
 };
 
 struct tag_pasori;

@@ -526,3 +526,16 @@ PASORI_ERR_TYPE    未対応のハードウェア。
 
 ZXB01226@nifty.com （オリジナルソースコード）
 rfujita@redhat.com （RPM化及びバージョン0.0.7をベースにしたgit化）
+
+Credits
+
+This project contains following third party libraries:
+
+CMake-Modules Project New BSD License
+Adapted from cmake-modules Google Code project
+
+Copyright (c) 2006 Andreas Schneider <mail@cynapses.org>
+
+(Changes for libusb) Copyright (c) 2008 Kyle Machulis <kyle@nonpolynomial.com>
+
+Full license: https://github.com/OpenKinect/libfreenect/blob/8219750df3/cmake_modules/Findlibusb-1.0.cmake
